@@ -5,11 +5,12 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-var index = require('./routes/index');
-// var users = require('./routes/users');
+// database and knex initialization
+var dbConfig = require('./knexfile');
+var env = "development";
+var knex = require('knex')(dbConfig[env]);
 
 var app = express();
-var db = require('./database/db');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -25,8 +26,9 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', index);
-// app.use('/users', users);
+// initializing routes
+var routes = require('./routes/index')({knex});
+app.use('/', routes);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
